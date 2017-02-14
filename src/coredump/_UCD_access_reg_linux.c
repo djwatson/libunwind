@@ -54,6 +54,9 @@ _UCD_access_reg (unw_addr_space_t as,
 #elif defined(UNW_TARGET_TILEGX)
   if (regnum > UNW_TILEGX_CFA)
     goto badreg;
+#elif defined(UNW_TARGET_IA64) || defined(UNW_TARGET_HPPA) || defined(UNW_TARGET_PPC32) || defined(UNW_TARGET_PPC64)
+  if (regnum >= ARRAY_SIZE(ui->prstatus->pr_reg))
+    goto badreg;
 #else
 #if defined(UNW_TARGET_MIPS)
   static const uint8_t remap_regs[] =
