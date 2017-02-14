@@ -94,7 +94,7 @@ AC_DEFUN([SET_ARCH],[
         [i?86],[$2=x86],
         [hppa*],[$2=hppa],
         [mips*],[$2=mips],
-        [powerpc*],[$2=ppc$ppc_bits],
+        [powerpc*],[$2=ppc64],
         [sh*],[$2=sh],
         [amd64],[$2=x86_64],
         [tile*],[$2=tilegx],

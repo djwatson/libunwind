@@ -7,7 +7,7 @@ env:
 - TARGET=aarch64-linux-gnu
 - TARGET=mipsel-unknown-linux-gnu
 # Currently experiencing build failures here
-- TARGET=powerpc-linux-gnu
+- TARGET=powerpc64-linux-gnu
 
 script:
 - ./autogen.sh
