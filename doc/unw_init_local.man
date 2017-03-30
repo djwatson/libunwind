@@ -37,7 +37,11 @@ pointed to by ctxt\&.
 As such, the machine\-state pointed to by 
 ctxt
 identifies the initial stack frame at which unwinding 
-starts. The machine\-state must remain valid for the duration for 
+starts. The machine\-state is expected to be one provided by a call to
+unw_getcontext; as such, the instruction pointer may point to the
+instruction after the last instruction of a function, and libunwind
+will back\-up the instruction pointer before beginning a walk up the
+call stack.  The machine\-state must remain valid for the duration for 
 which the cursor c
 is in use. 
 .PP
@@ -46,17 +50,6 @@ routine can be used only for unwinding in
 the address space of the current process (i.e., for local unwinding). 
 For all other cases, unw_init_remote()
 must be used instead. 
-From a behavioral point of view, the call: 
-.PP
-.Vb
-    ret = unw_init_local(&cursor, &ucontext);
-.Ve
-is equivalent to: 
-.PP
-.Vb
-    ret = unw_init_remote(&cursor, unw_local_addr_space,
-                          &ucontext);
-.Ve
 However, unwind performance may be better when using 
 unw_init_local().
 Also, unw_init_local()
