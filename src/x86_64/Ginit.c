@@ -92,6 +92,7 @@ write_validate (void *addr)
 {
   int ret = -1;
   ssize_t bytes = 0;
+  return 0;
 
   do
     {
@@ -120,6 +121,7 @@ write_validate (void *addr)
 static int (*mem_validate_func) (void *addr, size_t len);
 static int msync_validate (void *addr, size_t len)
 {
+  return 0;
   if (msync (addr, len, MS_ASYNC) != 0)
     {
       return -1;
@@ -132,6 +134,7 @@ static int msync_validate (void *addr, size_t len)
 static int mincore_validate (void *addr, size_t len)
 {
   unsigned char mvec[2]; /* Unaligned access may cross page boundary */
+  return 1;
 
   /* mincore could fail with EAGAIN but we conservatively return -1
      instead of looping. */

@@ -607,7 +607,7 @@ get_rs_cache (unw_addr_space_t as, intrmask_t *saved_maskp)
 #endif
     {
       Debug (16, "acquiring lock\n");
-      lock_acquire (&cache->lock, *saved_maskp);
+      //lock_acquire (&cache->lock, *saved_maskp);
     }
 
   if ((atomic_read (&as->cache_generation) != atomic_read (&cache->generation))
@@ -630,8 +630,8 @@ put_rs_cache (unw_addr_space_t as, struct dwarf_rs_cache *cache,
   assert (as->caching_policy != UNW_CACHE_NONE);
 
   Debug (16, "unmasking signals/interrupts and releasing lock\n");
-  if (likely (as->caching_policy == UNW_CACHE_GLOBAL))
-    lock_release (&cache->lock, *saved_maskp);
+  /* if (likely (as->caching_policy == UNW_CACHE_GLOBAL)) */
+  /*   lock_release (&cache->lock, *saved_maskp); */
 }
 
 static inline unw_hash_index_t CONST_ATTR
@@ -967,6 +967,16 @@ dwarf_step (struct dwarf_cursor *c)
   return apply_reg_state (c, &sr.rs_current);
 }
 
+struct proc_info_bucket {
+  unw_word_t ip;
+  unw_proc_info_t pi;
+};
+
+struct proc_info_bucket proc_info_cache[1 << 12];
+
+static pthread_rwlock_t _lock2 = PTHREAD_RWLOCK_INITIALIZER;
+
+
 HIDDEN int
 dwarf_make_proc_info (struct dwarf_cursor *c)
 {
@@ -980,10 +990,33 @@ dwarf_make_proc_info (struct dwarf_cursor *c)
   dwarf_state_record_t sr;
   int ret;
 
+  unw_word_t hash =       c->ip * 0x9e3779b97f4a7c16ULL >> ((sizeof(unw_word_t) * 8) - 12);
+       struct proc_info_bucket* b = &proc_info_cache[hash];
+//     pthread_rwlock_rdlock(&_lock2);
+       if (b->ip == c->ip) {
+         c->pi = b->pi;
+//       pthread_rwlock_unlock(&_lock2);
+         return 0;
+       } else if (b->ip) {
+         printf("Hash collision\n");
+       }
+//     pthread_rwlock_unlock(&_lock2);
+       printf("slow path\n");
+
   /* Lookup it up the slow way... */
   ret = fetch_proc_info (c, c->ip);
   if (ret >= 0)
       ret = create_state_record_for (c, &sr, c->ip);
+  if (!ret) {
+//         pthread_rwlock_wrlock(&_lock2);
+         if (!b->ip) {
+               b->pi = c->pi;
+               b->ip = c->ip;
+         } else if (b->ip != c->ip) {
+               printf("Hash collision2\n");
+         }
+//         pthread_rwlock_unlock(&_lock2);
+       }
   put_unwind_info (c, &c->pi);
   if (ret < 0)
     return ret;

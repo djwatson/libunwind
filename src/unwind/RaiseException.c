@@ -32,6 +32,7 @@ _Unwind_RaiseException (struct _Unwind_Exception *exception_object)
   _Unwind_Personality_Fn personality;
   struct _Unwind_Context context;
   _Unwind_Reason_Code reason;
+  _Unwind_Reason_Code reason2;
   unw_proc_info_t pi;
   unw_context_t uc;
   unw_word_t ip;
@@ -68,14 +69,23 @@ _Unwind_RaiseException (struct _Unwind_Exception *exception_object)
                                    &context);
           if (reason != _URC_CONTINUE_UNWIND)
             {
-              if (reason == _URC_HANDLER_FOUND)
+              if (reason == _URC_HANDLER_FOUND) {
+                if (reason == _URC_HANDLER_FOUND) {
+                  reason2 = (*personality) (_U_VERSION, _UA_CLEANUP_PHASE | _UA_HANDLER_FRAME, exception_class,
+                                            exception_object, &context);
+                  unw_resume (&context.cursor);
                 break;
+              }
               else
                 {
                   Debug (1, "personality returned %d\n", reason);
                   return _URC_FATAL_PHASE1_ERROR;
                 }
-            }
+              }
+            } else {
+            reason2 = (*personality) (_U_VERSION, _UA_CLEANUP_PHASE, exception_class,
+                                      exception_object, &context);
+          }
         }
     }
 
