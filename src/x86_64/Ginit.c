@@ -319,11 +319,34 @@ access_reg (unw_addr_space_t as, unw_regnum_t reg, unw_word_t *val, int write,
   unw_word_t *addr;
   ucontext_t *uc = ((struct cursor *)arg)->uc;
 
-  if (unw_is_fpreg (reg))
-    goto badreg;
+  /* if (unw_is_fpreg (reg)) */
+  /*   goto badreg; */
 
-  if (!(addr = x86_64_r_uc_addr (uc, reg)))
-    goto badreg;
+  /* if (!(addr = x86_64_r_uc_addr (uc, reg))) */
+  /*   goto badreg; */
+  switch (reg)
+    {
+    case UNW_X86_64_R8: addr = &uc->uc_mcontext.gregs[REG_R8]; break;
+    case UNW_X86_64_R9: addr = &uc->uc_mcontext.gregs[REG_R9]; break;
+    case UNW_X86_64_R10: addr = &uc->uc_mcontext.gregs[REG_R10]; break;
+    case UNW_X86_64_R11: addr = &uc->uc_mcontext.gregs[REG_R11]; break;
+    case UNW_X86_64_R12: addr = &uc->uc_mcontext.gregs[REG_R12]; break;
+    case UNW_X86_64_R13: addr = &uc->uc_mcontext.gregs[REG_R13]; break;
+    case UNW_X86_64_R14: addr = &uc->uc_mcontext.gregs[REG_R14]; break;
+    case UNW_X86_64_R15: addr = &uc->uc_mcontext.gregs[REG_R15]; break;
+    case UNW_X86_64_RDI: addr = &uc->uc_mcontext.gregs[REG_RDI]; break;
+    case UNW_X86_64_RSI: addr = &uc->uc_mcontext.gregs[REG_RSI]; break;
+    case UNW_X86_64_RBP: addr = &uc->uc_mcontext.gregs[REG_RBP]; break;
+    case UNW_X86_64_RBX: addr = &uc->uc_mcontext.gregs[REG_RBX]; break;
+    case UNW_X86_64_RDX: addr = &uc->uc_mcontext.gregs[REG_RDX]; break;
+    case UNW_X86_64_RAX: addr = &uc->uc_mcontext.gregs[REG_RAX]; break;
+    case UNW_X86_64_RCX: addr = &uc->uc_mcontext.gregs[REG_RCX]; break;
+    case UNW_X86_64_RSP: addr = &uc->uc_mcontext.gregs[REG_RSP]; break;
+    case UNW_X86_64_RIP: addr = &uc->uc_mcontext.gregs[REG_RIP]; break;
+  /* if (!(addr = x86_64_r_uc_addr (uc, reg))) */
+  /*   goto badreg; */
+       }
+
 
   if (write)
     {
