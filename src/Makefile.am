@@ -127,6 +127,13 @@ libunwind_la_SOURCES_local_unwind =					\
 libunwind_la_SOURCES_os_linux_local = mi/_ReadULEB.c mi/_ReadSLEB.c
 endif
 
+mi/L%.c: mi/G%.c
+	ln -sfn $(notdir $<) $@
+x86_64/L%.c: x86_64/G%.c
+	ln -sfn $(notdir $<) $@
+dwarf/L%.c: dwarf/G%.c
+	ln -sfn $(notdir $<) $@
+
 # List of arch-independent files needed by local-only library (libunwind):
 libunwind_la_SOURCES_local_nounwind =					\
 	$(libunwind_la_SOURCES_os_local)				\
@@ -161,6 +168,7 @@ libunwind_dwarf_local_la_SOURCES = \
 	dwarf/Lfind_proc_info-lsb.c \
 	dwarf/Lfind_unwind_table.c
 libunwind_dwarf_local_la_LIBADD = libunwind-dwarf-common.la
+libunwind_dwarf_local_la_CFLAGS = -DUNW_LOCAL_ONLY
 
 libunwind_dwarf_generic_la_SOURCES = \
 	dwarf/Gexpr.c dwarf/Gfde.c dwarf/Gparser.c dwarf/Gpe.c \
@@ -723,6 +731,7 @@ endif
 #
 libunwind_la_LDFLAGS =	$(COMMON_SO_LDFLAGS) -XCClinker -nostdlib \
 			$(LDFLAGS_STATIC_LIBCXA) -version-info $(SOVERSION)
+libunwind_la_CFLAGS = -DUNW_LOCAL_ONLY
 libunwind_la_LIBADD  += -lc $(LIBCRTS)
 libunwind_la_LIBADD += $(LIBLZMA)
 
